@@ -1,13 +1,18 @@
 package net.fabricmc.example
 
-// For support join https://discord.gg/v6v4pMv
+import com.google.gson.JsonParser
+import kds.internal.ScriptingEngine
+import java.io.File
 
 @Suppress("unused")
 fun init() {
-    // This code runs as soon as Minecraft is in a mod-load-ready state.
-    // However, some things (like resources) may still be uninitialized.
-    // Proceed with mild caution.
-
     println("Hello Fabric world!")
-}
 
+    ScriptingEngine.initialize()
+
+    // TODO
+    val config = JsonParser().parse(File("../src/main/kotlin/scripts/mod.json").reader()).asJsonObject
+    val base = config["base_script"]?.asString
+
+    base?.let { ScriptingEngine.initScript(it) }
+}

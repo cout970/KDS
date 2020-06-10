@@ -5,7 +5,10 @@
   "mixins": [
   ],
   "client": [
-    "ExampleMixin"
+    "ModelLoaderMixin",
+    "MinecraftMixin",
+    "SpriteAtlasTextureMixin",
+    "TranslationStorageMixin"
   ],
   "injectors": {
     "defaultRequire": 1
