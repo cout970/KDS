@@ -2,6 +2,8 @@ package kds.api
 
 import kds.api.block.IBlockDSL
 import kds.api.item.IItemDSL
+import net.minecraft.util.Identifier
+import org.apache.logging.log4j.Logger
 
 class ModDsl {
     /** The modid is required and must not collide with other mods */
@@ -28,4 +30,14 @@ interface IModReference {
      * Definition of the blocks of the mod, can be called multiple times
      */
     fun items(dsl: IItemDSL.() -> Unit)
+
+    /**
+     * Creates an id for a path inside this mod
+     */
+    fun id(path: String): Identifier
+
+    /**
+     * Gets the mod logger
+     */
+    fun logger(): Logger
 }

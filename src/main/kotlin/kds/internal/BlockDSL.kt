@@ -26,7 +26,7 @@ class BlockDSL(private val ref: ModReference) : IBlockDSL {
         builder.apply(definition)
 
         if (builder.name == null || builder.material == null) {
-            println("Block definition incomplete: name and material are required")
+            error("Block definition incomplete: name and material are required")
         }
 
         val id = Identifier(ref.modid, builder.name)
@@ -36,6 +36,7 @@ class BlockDSL(private val ref: ModReference) : IBlockDSL {
 
             val block = KDSBlock(builder, AbstractBlock.Settings.of(Material.STONE))
             Registry.register(Registry.BLOCK, id, block)
+            ref.logger().info("Registering block ${builder.name}")
         }
 
         val block = Registry.BLOCK[id] as KDSBlock
@@ -53,6 +54,7 @@ class BlockDSL(private val ref: ModReference) : IBlockDSL {
 
         val itemBlock = builder.blockItem ?: return
         registerBlockItem(block, itemBlock)
+        ref.logger().info("Registering blockitem ${builder.name}")
     }
 
     private fun getterFromVariants(

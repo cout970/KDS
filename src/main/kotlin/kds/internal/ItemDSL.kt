@@ -2,7 +2,6 @@ package kds.internal
 
 import kds.api.item.IItemDSL
 import kds.api.item.ItemBuilder
-import kds.api.item.ItemSprite
 import kds.internal.client.ModelManager
 import kds.internal.client.TranslationManager
 import net.minecraft.item.Item
@@ -17,7 +16,7 @@ class ItemDSL(private val ref: ModReference) : IItemDSL {
         builder.apply(definition)
 
         if (builder.name == null) {
-            println("Item definition incomplete: name and material are required")
+            error("Item definition incomplete: name and material are required")
         }
 
         val id = Identifier(ref.modid, builder.name)
@@ -25,6 +24,7 @@ class ItemDSL(private val ref: ModReference) : IItemDSL {
         if (!Registry.ITEM.ids.contains(id)) {
             val item = KDSItem(Item.Settings().group(ItemGroup.MISC))
             Registry.register(Registry.ITEM, id, item)
+            ref.logger().info("Registering item ${builder.name}")
         }
 
         val item = Registry.ITEM[id] as KDSItem

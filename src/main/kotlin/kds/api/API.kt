@@ -1,6 +1,9 @@
 package kds.api
 
+import kds.api.registries.IRegistries
+import kds.api.util.Promise
 import kds.internal.ModReference
+import kds.internal.Registries
 import kds.internal.ScriptingEngine
 
 object API {
@@ -26,6 +29,13 @@ object API {
     }
 
     /**
+     * Register a file as a main script, any changes to it or any subscript will trigger a re-execution
+     */
+    fun registerScript(relativePath: String): Promise<Unit> {
+        return ScriptingEngine.initScript(relativePath)
+    }
+
+    /**
      * Schedules the execution of another script
      *
      * NOTE: the script execution will start after the current script finish executing
@@ -33,9 +43,9 @@ object API {
      * The path is relative to the location of the mod.json file
      * A set of parameters can be sent to the script, use API.get(name) to retrieve it
      */
-    fun include(path: String, vararg variables: Pair<String, Any>) {
+    fun include(path: String, vararg variables: Pair<String, Any>): Promise<Unit> {
         @Suppress("UNCHECKED_CAST")
-        ScriptingEngine.includeFile(path, variables as Array<Pair<String, Any>>)
+        return ScriptingEngine.includeFile(path, variables as Array<Pair<String, Any>>)
     }
 
     /**
@@ -52,4 +62,9 @@ object API {
         @Suppress("UNCHECKED_CAST")
         return ScriptingEngine.getParameter(name) as T?
     }
+
+    /**
+     * List of game registries
+     */
+    fun registries(): IRegistries = Registries
 }

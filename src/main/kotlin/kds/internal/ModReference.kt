@@ -3,6 +3,9 @@ package kds.internal
 import kds.api.IModReference
 import kds.api.block.IBlockDSL
 import kds.api.item.IItemDSL
+import net.minecraft.util.Identifier
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 
 class ModReference(
     override val modid: String,
@@ -10,11 +13,13 @@ class ModReference(
     override var description: String
 ) : IModReference {
 
+    private val logger = LogManager.getLogger(modid)
+
     override fun blocks(dsl: IBlockDSL.() -> Unit) {
         try {
             BlockDSL(this).apply(dsl)
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger.error("Exception in block definition", e)
         }
     }
 
@@ -22,7 +27,11 @@ class ModReference(
         try {
             ItemDSL(this).apply(dsl)
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger.error("Exception in item definition", e)
         }
     }
+
+    override fun id(path: String): Identifier = Identifier(modid, path)
+
+    override fun logger(): Logger = logger
 }

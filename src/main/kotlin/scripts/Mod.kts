@@ -1,11 +1,11 @@
 import kds.api.API
 
-val reference = API.mod {
+val ref = API.mod {
     modid = "example_mod"
     name = "Example mod"
     description = "A simple mod showing the features of the API"
 }
 
-
-API.include("Blocks", "reference" to reference)
-API.include("Items", "reference" to reference)
+API.include("scripts/Blocks", "reference" to ref)
+API.include("scripts/Items", "reference" to ref)
+API.include("scripts/Storage", "reference" to ref)
