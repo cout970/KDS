@@ -9,4 +9,3 @@ val reference = API.mod {
 
 API.include("Blocks", "reference" to reference)
 API.include("Items", "reference" to reference)
-

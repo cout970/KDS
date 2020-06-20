@@ -1,6 +1,6 @@
 package kds.api.model
 
-import net.minecraft.client.util.math.Rotation3
+import net.minecraft.client.util.math.AffineTransformation
 import net.minecraft.client.util.math.Vector3f
 import net.minecraft.util.math.Quaternion
 
@@ -158,8 +158,8 @@ class Transformation(
     /**
      * Conversion to Rotation3
      */
-    fun toRotation3(): Rotation3 {
-        return Rotation3(translation.copy(), rotation.copy(), scale.copy(), null)
+    fun toAffineTransformation(): AffineTransformation {
+        return AffineTransformation(translation.copy(), rotation.copy(), scale.copy(), null)
     }
 
     /**

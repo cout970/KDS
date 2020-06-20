@@ -6,7 +6,7 @@ import kds.api.item.ItemBuilder
 import kds.api.model.BlockstateVariantBuilder
 import kds.internal.client.ModelManager
 import kds.internal.client.TranslationManager
-import net.minecraft.block.Block
+import net.minecraft.block.AbstractBlock
 import net.minecraft.block.BlockState
 import net.minecraft.block.Material
 import net.minecraft.client.render.model.ModelRotation
@@ -34,7 +34,7 @@ class BlockDSL(private val ref: ModReference) : IBlockDSL {
         if (!Registry.BLOCK.ids.contains(id)) {
             KDSBlock._constructor_config_ = builder
 
-            val block = KDSBlock(builder, Block.Settings.of(Material.STONE))
+            val block = KDSBlock(builder, AbstractBlock.Settings.of(Material.STONE))
             Registry.register(Registry.BLOCK, id, block)
         }
 
@@ -66,7 +66,7 @@ class BlockDSL(private val ref: ModReference) : IBlockDSL {
             val modelVariants = models.mapNotNull { variant ->
 
                 ModelManager.registerDisplay(id, variant.display, false)?.let { modelId ->
-                    val rot = variant.rotation?.toRotation3() ?: ModelRotation.X0_Y0.rotation
+                    val rot = variant.rotation?.toAffineTransformation() ?: ModelRotation.X0_Y0.rotation
 
                     ModelVariant(modelId, rot, variant.uvLock, 1)
                 }

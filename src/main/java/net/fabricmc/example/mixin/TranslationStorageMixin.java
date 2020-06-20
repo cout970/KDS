@@ -1,7 +1,7 @@
 package net.fabricmc.example.mixin;
 
 import kds.internal.client.TranslationManager;
-import net.minecraft.util.Language;
+import net.minecraft.client.resource.language.TranslationStorage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Map;
 
-@Mixin(Language.class)
+@Mixin(TranslationStorage.class)
 public class TranslationStorageMixin {
 
     @Shadow
@@ -18,7 +18,7 @@ public class TranslationStorageMixin {
 
     @Inject(
             at = @At("HEAD"),
-            method = "getTranslation(Ljava/lang/String;)Ljava/lang/String;",
+            method = "get(Ljava/lang/String;)Ljava/lang/String;",
             cancellable = true
     )
     private void getTranslation(String key, CallbackInfoReturnable<String> callback) {

@@ -1,7 +1,6 @@
 import kds.api.API
 import kds.api.IModReference
 import kds.api.item.BlockCube
-import kds.api.item.ItemSprite
 import net.minecraft.util.StringIdentifiable
 
 val ref: IModReference = API.get("reference")
@@ -84,3 +83,5 @@ enum class States : StringIdentifiable {
 
     override fun asString(): String = name.toLowerCase()
 }
+
+

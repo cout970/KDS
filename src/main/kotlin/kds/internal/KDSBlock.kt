@@ -15,9 +15,10 @@ class KDSBlock(val config: BlockBuilder, settings: Settings) : Block(settings), 
         lateinit var _constructor_config_: BlockBuilder
     }
 
-    override fun hasBlockEntity(): Boolean {
-        return config.blockEntityConfig != null
-    }
+// TODO fuck you Mojang x3
+//    override fun hasBlockEntity(): Boolean {
+//        return config.blockEntityConfig != null
+//    }
 
     override fun createBlockEntity(view: BlockView?): BlockEntity? {
         return null

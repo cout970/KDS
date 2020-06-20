@@ -6,9 +6,9 @@ import net.minecraft.util.Formatting
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.ArrayDeque
-import javax.script.*
-import kotlin.script.experimental.jsr223.KOTLIN_JSR223_RESOLVE_FROM_CLASSLOADER_PROPERTY
+import java.util.*
+import javax.script.ScriptEngineManager
+import javax.script.ScriptException
 
 const val EXTENSION = "kts"
 
@@ -16,12 +16,14 @@ object ScriptingEngine {
     init {
         // IMPORTANT!!!
         // This must be executed before ScriptEngineManager().getEngineByExtension(extension)
-        System.setProperty(KOTLIN_JSR223_RESOLVE_FROM_CLASSLOADER_PROPERTY, "true")
+        // KOTLIN_JSR223_RESOLVE_FROM_CLASSLOADER_PROPERTY
+        System.setProperty("kotlin.jsr223.experimental.resolve.dependencies.from.context.classloader", "true")
+        System.setProperty("kotlin.java.stdlib.jar", "/var/lib/snapd/snap/kotlin/current/lib/kotlin-stdlib.jar")
     }
 
     private var engine = ScriptEngineManager().getEngineByExtension(EXTENSION)
     private val loadedFiles = mutableSetOf<LoadedFile>()
-    var currentMain: File? = null
+    private var currentMain: File? = null
     private var basePath = "../src/main/kotlin/scripts"
     private val queue = ArrayDeque<Pair<File, Array<Pair<String, Any>>>>()
 
@@ -31,7 +33,11 @@ object ScriptingEngine {
 
     fun initialize() {
         println("Initializing Scripting Engine...")
-        engine.eval("println(\"Scripting Engine Initialized\")")
+        try {
+            engine.eval("println(\"Scripting Engine Initialized\")")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         engine.put("ScriptingEngine", ScriptingEngine)
     }
 
@@ -44,10 +50,10 @@ object ScriptingEngine {
         loadedFiles += LoadedFile(file, file)
         currentMain = file
         execute(file)
-        
+
         while (queue.isNotEmpty()) {
-            val (file, params) = queue.pop()
-            execute(file, params)
+            val (nextFile, params) = queue.pop()
+            execute(nextFile, params)
         }
     }
 
@@ -116,7 +122,7 @@ object ScriptingEngine {
             val msg = "${Formatting.RED}[$time] Script error$location: \n${errors}"
 
             MinecraftClient.getInstance().player
-                ?.addChatMessage(LiteralText(msg), false)
+                ?.sendMessage(LiteralText(msg), false)
 
             println("Script error$location: \n${(e.message ?: "").split("\n").joinToString("\n")}")
         }
