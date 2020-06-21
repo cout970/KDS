@@ -13,8 +13,6 @@ import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 import javax.script.ScriptException
 
-const val EXTENSION = "kts"
-
 object ScriptingEngine {
 
     private var engine: ScriptEngine
@@ -28,8 +26,12 @@ object ScriptingEngine {
         // This must be executed before ScriptEngineManager().getEngineByExtension(extension)
         // KOTLIN_JSR223_RESOLVE_FROM_CLASSLOADER_PROPERTY
         System.setProperty("kotlin.jsr223.experimental.resolve.dependencies.from.context.classloader", "true")
-        System.setProperty("kotlin.java.stdlib.jar", "/var/lib/snapd/snap/kotlin/current/lib/kotlin-stdlib.jar")
-        engine = ScriptEngineManager().getEngineByExtension(EXTENSION)
+
+        // For some unknown reason this is needed to be able to use the stdlib in scripts, it is probably a bug,
+        // but there is nothing we can do about it
+        System.setProperty("kotlin.java.stdlib.jar", File("../libs/kotlin-stdlib.jar").absolutePath)
+
+        engine = ScriptEngineManager().getEngineByExtension("kts")
 
         println("Initializing Scripting Engine...")
         engine.eval("println(\"Scripting Engine Initialized\")")
@@ -99,7 +101,7 @@ object ScriptingEngine {
 
     private fun execute(file: File, params: Array<Pair<String, Any>> = emptyArray()) {
         try {
-            val text = file.readText() // processImports(file.readText())
+            val text = file.readText()
             params.forEach { engine.put(it.first, it.second) }
 
             engine.eval(text)
