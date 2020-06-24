@@ -1,7 +1,8 @@
-package kds.internal
+package kds.internal.item
 
 import kds.api.item.IItemDSL
 import kds.api.item.ItemBuilder
+import kds.internal.ModReference
 import kds.internal.client.ModelManager
 import kds.internal.client.TranslationManager
 import net.minecraft.item.Item
@@ -11,7 +12,7 @@ import net.minecraft.util.registry.Registry
 
 class ItemDSL(private val ref: ModReference) : IItemDSL {
 
-    override fun item(definition: ItemBuilder.() -> Unit) {
+    override fun item(definition: ItemBuilder.() -> Unit): Identifier {
         val builder = ItemBuilder()
         builder.apply(definition)
 
@@ -35,5 +36,7 @@ class ItemDSL(private val ref: ModReference) : IItemDSL {
         builder.defaultLocalizedName?.let {
             TranslationManager.registerDefaultTranslation(item.translationKey, it)
         }
+
+        return id
     }
 }

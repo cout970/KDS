@@ -1,16 +1,18 @@
 package kds.api.block
 
+import kds.api.KDS
+import kds.api.block.blockentity.ModuleBuilder
 import kds.api.item.ItemBuilder
-import kds.api.model.BlockStateBuilder
-import kds.api.module.Module
+import net.minecraft.util.Identifier
 
 interface IBlockDSL {
     /**
      * Defines a single block to be added into the game
      */
-    fun block(definition: BlockBuilder.() -> Unit)
+    fun block(definition: BlockBuilder.() -> Unit): Identifier
 }
 
+@KDS
 class BlockBuilder {
     /**
      * The internal name of the block
@@ -20,7 +22,7 @@ class BlockBuilder {
     /**
      * The material of the block
      */
-    var material: String? = null
+    var material: Identifier? = null
 
     /**
      * Item that represents the block in inventories
@@ -47,22 +49,24 @@ class BlockBuilder {
     /**
      * Defines a blockstate json
      */
-    fun blockstate(func: BlockStateBuilder.() -> Unit) {
+    fun blockState(func: BlockStateBuilder.() -> Unit) {
         val builder = blockStateConfig ?: BlockStateBuilder()
         blockStateConfig = builder.apply(func)
     }
 }
 
+@KDS
 class BlockEntityBuilder {
-    val modules = mutableListOf<Module<*, *>>()
 
-    /**
-     * Register a module for this BlockEntity
-     *
-     * Normally you would use the builder function in the module instead of this method
-     */
-    fun withModule(mod: Module<*, *>) {
-        if (modules.any { it.name == mod.name }) error("There is already an module with id ${mod.name}")
-        modules.add(mod)
+    val modules = mutableMapOf<Identifier, ModuleBuilder>()
+    var renderDistance: Double = 64.0
+    var type: Identifier? = null
+
+    fun module(func: ModuleBuilder.() -> Unit) {
+        val dsl = ModuleBuilder().apply(func)
+        if (dsl.id == null) {
+            error("Module defined without id")
+        }
+        modules[dsl.id!!] = dsl
     }
 }

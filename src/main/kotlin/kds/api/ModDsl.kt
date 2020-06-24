@@ -5,6 +5,10 @@ import kds.api.item.IItemDSL
 import net.minecraft.util.Identifier
 import org.apache.logging.log4j.Logger
 
+@DslMarker
+annotation class KDS
+
+@KDS
 class ModDsl {
     /** The modid is required and must not collide with other mods */
     var modid: String? = null

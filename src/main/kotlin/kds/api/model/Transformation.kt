@@ -9,6 +9,18 @@ class Transformation(
     val rotation: Quaternion = Quaternion(0f, 0f, 0f, 1f),
     val scale: Vector3f = Vector3f(1f, 1f, 1f)
 ) {
+    companion object {
+        fun identity() = Transformation()
+
+        fun rotation0() = Transformation()
+        fun rotation90Y() = Transformation().apply { rotateDegY(90f) }
+        fun rotation180Y() = Transformation().apply { rotateDegY(90f) }
+        fun rotation270Y() = Transformation().apply { rotateDegY(90f) }
+        fun rotation90X() = Transformation().apply { rotateDegX(90f) }
+        fun rotation180X() = Transformation().apply { rotateDegX(90f) }
+        fun rotation270X() = Transformation().apply { rotateDegX(90f) }
+    }
+
     /**
      * Resets the transformation to the default state
      */

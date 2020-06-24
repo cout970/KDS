@@ -10,5 +10,7 @@ class KDSInit : ModInitializer {
         println("Hello Fabric world!")
         API.registerScript("scripts/Mod.kts")
         println("Initialization done")
+
+
     }
 }

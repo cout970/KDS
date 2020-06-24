@@ -1,10 +1,10 @@
 package kds.internal.client
 
 import com.google.gson.Gson
-import kds.api.item.BlockCube
-import kds.api.item.CustomDisplay
-import kds.api.item.ItemDisplay
-import kds.api.item.ItemSprite
+import kds.api.item.BlockCubeModel
+import kds.api.item.CustomDisplayModel
+import kds.api.item.DisplayModel
+import kds.api.item.ItemSpriteModel
 import kds.api.model.JsonModel
 import net.minecraft.block.BlockState
 import net.minecraft.client.render.model.UnbakedModel
@@ -61,28 +61,45 @@ object ModelManager {
         return modelPath
     }
 
-    fun registerBlockCube(id: Identifier, blockCube: BlockCube, item: Boolean): Identifier {
+    fun idOf(mod: Identifier, path: String): Identifier {
+        if (path.contains(':')) {
+            val id = Identifier.tryParse(path)
+            if (id != null) return id
+        }
+        return Identifier(mod.namespace, path)
+    }
+
+    fun registerBlockCube(id: Identifier, blockCube: BlockCubeModel, item: Boolean): Identifier {
+
+        val particle = idOf(id, blockCube.particle)
+        val down = idOf(id, blockCube.down)
+        val up = idOf(id, blockCube.up)
+        val north = idOf(id, blockCube.north)
+        val east = idOf(id, blockCube.east)
+        val south = idOf(id, blockCube.south)
+        val west = idOf(id, blockCube.west)
+        println("$id, ${blockCube.west}, $west")
 
         val jsonModel = JsonModel()
         jsonModel.parent = "minecraft:block/cube"
-        jsonModel.textures["particle"] = "${id.namespace}:${blockCube.particle}"
-        jsonModel.textures["down"] = "${id.namespace}:${blockCube.down}"
-        jsonModel.textures["up"] = "${id.namespace}:${blockCube.up}"
-        jsonModel.textures["north"] = "${id.namespace}:${blockCube.north}"
-        jsonModel.textures["east"] = "${id.namespace}:${blockCube.east}"
-        jsonModel.textures["south"] = "${id.namespace}:${blockCube.south}"
-        jsonModel.textures["west"] = "${id.namespace}:${blockCube.west}"
+        jsonModel.textures["particle"] = particle.toString()
+        jsonModel.textures["down"] = down.toString()
+        jsonModel.textures["up"] = up.toString()
+        jsonModel.textures["north"] = north.toString()
+        jsonModel.textures["east"] = east.toString()
+        jsonModel.textures["south"] = south.toString()
+        jsonModel.textures["west"] = west.toString()
 
         val model = JsonUnbakedModel.deserialize(GSON.toJson(jsonModel))
         model.id = id.toString()
 
-        registerTexturePath(id.namespace, blockCube.particle)
-        registerTexturePath(id.namespace, blockCube.down)
-        registerTexturePath(id.namespace, blockCube.up)
-        registerTexturePath(id.namespace, blockCube.north)
-        registerTexturePath(id.namespace, blockCube.east)
-        registerTexturePath(id.namespace, blockCube.south)
-        registerTexturePath(id.namespace, blockCube.west)
+        registerTexturePath(particle.namespace, particle.path)
+        registerTexturePath(down.namespace, down.path)
+        registerTexturePath(up.namespace, up.path)
+        registerTexturePath(north.namespace, north.path)
+        registerTexturePath(east.namespace, east.path)
+        registerTexturePath(south.namespace, south.path)
+        registerTexturePath(west.namespace, west.path)
 
         val modelPath = if (item)
             Identifier(id.namespace, "item/${id.path}")
@@ -111,11 +128,11 @@ object ModelManager {
         return modelPath
     }
 
-    fun registerDisplay(id: Identifier, display: ItemDisplay?, item: Boolean): Identifier? {
+    fun registerDisplay(id: Identifier, display: DisplayModel?, item: Boolean): Identifier? {
         return when (display) {
-            is ItemSprite -> registerItemSprite(id, display.path, item)
-            is BlockCube -> registerBlockCube(id, display, item)
-            is CustomDisplay -> registerCustomModel(id, display.model, item)
+            is ItemSpriteModel -> registerItemSprite(id, display.path, item)
+            is BlockCubeModel -> registerBlockCube(id, display, item)
+            is CustomDisplayModel -> registerCustomModel(id, display.model, item)
             null -> {
                 removeItemModel(id)
                 null

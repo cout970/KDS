@@ -1,14 +1,21 @@
-package kds.internal
+package kds.internal.block
 
 import kds.api.block.BlockBuilder
+import kds.api.block.BlockEntityBuilder
 import kds.api.block.IBlockDSL
 import kds.api.item.ItemBuilder
 import kds.api.model.BlockstateVariantBuilder
+import kds.internal.ModReference
+import kds.internal.block.blockentity.KDSBlockEntity
+import kds.internal.block.blockentity.KDSTickableBlockEntity
 import kds.internal.client.ModelManager
 import kds.internal.client.TranslationManager
+import kds.internal.item.KDSBlockItem
 import net.minecraft.block.AbstractBlock
+import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Material
+import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.client.render.model.ModelRotation
 import net.minecraft.client.render.model.UnbakedModel
 import net.minecraft.client.render.model.json.ModelVariant
@@ -18,10 +25,11 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
+import java.util.function.Supplier
 
 class BlockDSL(private val ref: ModReference) : IBlockDSL {
 
-    override fun block(definition: BlockBuilder.() -> Unit) {
+    override fun block(definition: BlockBuilder.() -> Unit): Identifier {
         val builder = BlockBuilder()
         builder.apply(definition)
 
@@ -32,9 +40,14 @@ class BlockDSL(private val ref: ModReference) : IBlockDSL {
         val id = Identifier(ref.modid, builder.name)
 
         if (!Registry.BLOCK.ids.contains(id)) {
-            KDSBlock._constructor_config_ = builder
+            val settings = AbstractBlock.Settings.of(Material.STONE)
 
-            val block = KDSBlock(builder, AbstractBlock.Settings.of(Material.STONE))
+            KDSBlock._constructor_config_ = builder
+            val block = if (builder.blockEntityConfig == null)
+                KDSBlock(builder, settings)
+            else
+                KDSBlockWithEntity(builder, settings)
+
             Registry.register(Registry.BLOCK, id, block)
             ref.logger().info("Registering block ${builder.name}")
         }
@@ -52,9 +65,29 @@ class BlockDSL(private val ref: ModReference) : IBlockDSL {
             }
         }
 
-        val itemBlock = builder.blockItem ?: return
+        builder.blockEntityConfig?.let { config ->
+            registerBlockEntity(block, id, config)
+        }
+
+        val itemBlock = builder.blockItem ?: return id
         registerBlockItem(block, itemBlock)
         ref.logger().info("Registering blockitem ${builder.name}")
+
+        return id
+    }
+
+    private fun registerBlockEntity(block: Block, id: Identifier, config: BlockEntityBuilder) {
+        val typeId = config.type ?: id
+        config.type = typeId
+        if (Registry.BLOCK_ENTITY_TYPE[typeId] != null) return
+
+        val tickable = config.modules.any { it.value.onTick != null }
+
+        val type = BlockEntityType.Builder.create(
+            Supplier { if (tickable) KDSTickableBlockEntity(config) else KDSBlockEntity(config) }, block
+        ).build(null)
+
+        Registry.register(Registry.BLOCK_ENTITY_TYPE, typeId, type)
     }
 
     private fun getterFromVariants(

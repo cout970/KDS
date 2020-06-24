@@ -4,6 +4,7 @@ import kds.api.util.Promise
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.LiteralText
 import net.minecraft.util.Formatting
+import org.apache.logging.log4j.LogManager
 import java.io.File
 import java.io.FileNotFoundException
 import java.time.LocalDateTime
@@ -15,6 +16,7 @@ import javax.script.ScriptException
 
 object ScriptingEngine {
 
+    private val logger = LogManager.getLogger()
     private var engine: ScriptEngine
     private val loadedFiles = mutableSetOf<LoadedFile>()
     private var currentMain: File? = null
@@ -53,7 +55,10 @@ object ScriptingEngine {
 
     fun includeFile(path: String, params: Array<Pair<String, Any>> = emptyArray()): Promise<Unit> {
         val file = File("$basePath/$path.kts")
-        if (!file.exists()) return Promise.reject(FileNotFoundException(file.absolutePath))
+        if (!file.exists()) {
+            logger.warn("Unable to load script at $path (${file.path})")
+            return Promise.reject(FileNotFoundException(file.absolutePath))
+        }
 
         loadedFiles += LoadedFile(file, currentMain!!)
         return Promise { fulfill, _ ->
@@ -101,12 +106,15 @@ object ScriptingEngine {
 
     private fun execute(file: File, params: Array<Pair<String, Any>> = emptyArray()) {
         try {
-            val text = file.readText()
             params.forEach { engine.put(it.first, it.second) }
 
-            engine.eval(text)
+            engine.eval(file.readText())
         } catch (e: Throwable) {
             e.cause?.printStackTrace()
+
+            if(e is ScriptException) {
+                for (traceElement in e.stackTrace) println("\tat $traceElement")
+            }
 
             val location = if (e is ScriptException && e.lineNumber != -1) {
                 " at ${file.nameWithoutExtension} ${e.lineNumber}:${e.columnNumber}"
@@ -129,7 +137,8 @@ object ScriptingEngine {
     private class QueuedTask(
         val script: File,
         val args: Array<Pair<String, Any>>,
-        val onComplete: (Unit) -> Unit)
+        val onComplete: (Unit) -> Unit
+    )
 
     private data class LoadedFile(
         val file: File,

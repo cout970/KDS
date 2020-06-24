@@ -3,8 +3,8 @@ package kds.api
 import kds.api.registries.IRegistries
 import kds.api.util.Promise
 import kds.internal.ModReference
-import kds.internal.Registries
 import kds.internal.ScriptingEngine
+import kds.internal.registries.Registries
 
 object API {
 

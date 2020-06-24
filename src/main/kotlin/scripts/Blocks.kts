@@ -1,24 +1,28 @@
 import kds.api.API
 import kds.api.IModReference
-import kds.api.item.BlockCube
+import kds.api.block.BlockEntityBuilder
+import kds.api.item.BlockCubeModel
+import kds.api.util.findProperty
+import kds.api.util.id
 import net.minecraft.util.StringIdentifiable
+import java.io.Serializable
 
 val ref: IModReference = API.get("reference")
 
 ref.blocks {
     block {
         name = "magic_dirt"
-        material = "minecraft:dirt"
+        material = id("minecraft", "dirt")
 
         item {
             defaultLocalizedName = "Magic Dirt"
-            display = BlockCube("blocks/magic_dirt")
+            display = BlockCubeModel("blocks/magic_dirt")
         }
 
-        blockstate {
+        blockState {
             model {
                 variant("") {
-                    display = BlockCube("blocks/magic_dirt")
+                    display = BlockCubeModel("blocks/magic_dirt")
                 }
             }
         }
@@ -26,20 +30,20 @@ ref.blocks {
 
     block {
         name = "magic_sand"
-        material = "minecraft:sand"
+        material = id("minecraft", "sand")
 
         item {
             defaultLocalizedName = "Magic Sand"
-            display = BlockCube("blocks/magic_sand")
+            display = BlockCubeModel("blocks/magic_sand")
         }
 
-        blockstate {
+        blockState {
             model {
                 variant("working=true") {
-                    display = BlockCube("blocks/magic_sand")
+                    display = BlockCubeModel("blocks/magic_sand")
                 }
                 variant("working=false") {
-                    display = BlockCube("blocks/magic_sand")
+                    display = BlockCubeModel("blocks/magic_sand")
                 }
             }
 
@@ -51,29 +55,53 @@ ref.blocks {
 
     block {
         name = "magic_sand2"
-        material = "minecraft:sand"
+        material = id("minecraft", "sand")
 
         item {
             defaultLocalizedName = "Magic Sand2"
-            display = BlockCube("blocks/magic_sand")
+            display = BlockCubeModel("blocks/magic_sand")
         }
 
-        blockstate {
+        blockState {
             model {
                 variant("option=a") {
-                    display = BlockCube("blocks/magic_sand")
+                    display = BlockCubeModel("blocks/magic_sand")
                 }
                 variant("option=b") {
-                    display = BlockCube("blocks/magic_dirt")
+                    display = BlockCubeModel("blocks/magic_dirt")
                 }
                 variant("option=c") {
-                    display = BlockCube("blocks/magic_sand")
+                    display = BlockCubeModel("blocks/magic_sand")
                 }
             }
 
             properties {
                 enum("option", States::class)
             }
+        }
+
+        blockEntity {
+            customModule()
+        }
+    }
+}
+
+fun BlockEntityBuilder.customModule() {
+    data class Counter(var count: Int = 0) : Serializable
+
+    module {
+        id = ref.id("custom_module")
+        onInit = { mod ->
+            mod.persistentState = Counter()
+        }
+        onTick = { module ->
+            val enumProperty = moduleManager.blockstate.findProperty<States>("option")!!
+            val counter = module.persistentState<Counter>()
+
+            if (counter.count % 20 == 0) {
+                world.setBlockState(pos, moduleManager.blockstate.cycle(enumProperty))
+            }
+            counter.count++
         }
     }
 }
@@ -84,4 +112,4 @@ enum class States : StringIdentifiable {
     override fun asString(): String = name.toLowerCase()
 }
 
-
+API.include("scripts/blocks/Furnace", "reference" to ref)

@@ -1,14 +1,17 @@
 package kds.api.item
 
+import kds.api.KDS
 import kds.api.model.JsonModel
+import net.minecraft.util.Identifier
 
 interface IItemDSL {
     /**
      * Defines a single block to be added into the game
      */
-    fun item(definition: ItemBuilder.() -> Unit)
+    fun item(definition: ItemBuilder.() -> Unit): Identifier
 }
 
+@KDS
 class ItemBuilder {
     /**
      * The internal name of the block
@@ -20,15 +23,15 @@ class ItemBuilder {
      */
     var defaultLocalizedName: String? = null
 
-    var display: ItemDisplay? = null
+    var display: DisplayModel? = null
 }
 
 
-sealed class ItemDisplay
+sealed class DisplayModel
 
-class ItemSprite(val path: String) : ItemDisplay()
+class ItemSpriteModel(val path: String) : DisplayModel()
 
-class BlockCube(
+class BlockCubeModel(
     val up: String,
     val down: String,
     val north: String,
@@ -36,8 +39,8 @@ class BlockCube(
     val east: String,
     val west: String,
     val particle: String
-) : ItemDisplay() {
+) : DisplayModel() {
     constructor(default: String) : this(default, default, default, default, default, default, default)
 }
 
-class CustomDisplay(val model: JsonModel) : ItemDisplay()
+class CustomDisplayModel(val model: JsonModel) : DisplayModel()

@@ -1,15 +1,19 @@
-package kds.api.model
+package kds.api.block
 
-import kds.api.item.ItemDisplay
+import kds.api.KDS
+import kds.api.model.BlockstateModelBuilder
+import kds.api.model.BlockstateVariantBuilder
 import net.minecraft.block.BlockState
 import net.minecraft.client.render.model.UnbakedModel
 import net.minecraft.client.util.ModelIdentifier
 import net.minecraft.state.property.BooleanProperty
 import net.minecraft.state.property.EnumProperty
+import net.minecraft.state.property.Properties
 import net.minecraft.state.property.Property
 import net.minecraft.util.StringIdentifiable
 import kotlin.reflect.KClass
 
+@KDS
 class BlockStateBuilder {
     var customModel: ((ModelIdentifier, BlockState) -> UnbakedModel?)? = null
     var modelVariants: (Map<String, MutableList<BlockstateVariantBuilder>>)? = null
@@ -24,6 +28,7 @@ class BlockStateBuilder {
     }
 }
 
+@KDS
 class PropertyBuilder(val properties: MutableSet<Property<*>>) {
 
     fun boolean(name: String) {
@@ -33,20 +38,12 @@ class PropertyBuilder(val properties: MutableSet<Property<*>>) {
     fun <T> enum(name: String, clazz: KClass<T>) where T : Enum<T>, T : StringIdentifiable {
         properties += EnumProperty.of(name, clazz.java)
     }
-}
 
-class BlockstateModelBuilder {
-    val variants = mutableMapOf<String, MutableList<BlockstateVariantBuilder>>()
-
-    fun variant(name: String, func: BlockstateVariantBuilder.() -> Unit) {
-        val list = variants.getOrPut(name) { mutableListOf() }
-
-        list += BlockstateVariantBuilder().apply(func)
+    fun horizontalFacing() {
+        properties += Properties.HORIZONTAL_FACING
     }
-}
 
-class BlockstateVariantBuilder {
-    var display: ItemDisplay? = null
-    var rotation: Transformation? = null
-    var uvLock: Boolean = false
+    fun facing() {
+        properties += Properties.FACING
+    }
 }
