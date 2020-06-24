@@ -3,6 +3,7 @@ package kds.api.registries
 import com.mojang.serialization.Codec
 import kds.api.API
 import net.minecraft.block.Block
+import net.minecraft.block.Material
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.EntityType
@@ -101,6 +102,8 @@ interface IRegistries {
     val lootPoolEntryType: IRegistry<LootPoolEntryType>
     val lootFunctionType: IRegistry<LootFunctionType>
     val lootConditionType: IRegistry<LootConditionType>
+
+    val material: IRegistry<Material>
 }
 
 

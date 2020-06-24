@@ -25,17 +25,19 @@ object NBTSerializationImpl {
         val tag = CompoundTag()
         val clazz = value.javaClass
 
+        if (clazz in NBTSerialization.customSerializers) {
+            val serializer = NBTSerialization.customSerializers[clazz]!!
+
+            tag.putByte(KEY_TYPE, TYPE_CUSTOM)
+            tag.putString(KEY_CLASS, clazz.canonicalName)
+            tag.put(KEY_VALUE, serializer.serialize(value))
+            return tag
+        }
+
         when (value) {
             is Tag -> {
                 tag.putByte(KEY_TYPE, TYPE_TAG)
                 tag.put(KEY_VALUE, value)
-            }
-            clazz in NBTSerialization.customSerializers -> {
-                val serializer = NBTSerialization.customSerializers[clazz]!!
-
-                tag.putByte(KEY_TYPE, TYPE_CUSTOM)
-                tag.putString(KEY_CLASS, clazz.canonicalName)
-                tag.put(KEY_VALUE, serializer.serialize(value))
             }
             is NBTSerializable -> {
                 tag.putByte(KEY_TYPE, TYPE_CUSTOM)
@@ -120,7 +122,7 @@ object NBTSerializationImpl {
                 tag.putInt("Size", value.size())
 
                 for (i in 0 until value.size()) {
-                    tag.put(i.toString(), serialize(value.getStack(i)))
+                    tag.put(i.toString(), NBTSerialization.serialize(value.getStack(i)))
                 }
 
                 return tag
@@ -131,7 +133,7 @@ object NBTSerializationImpl {
                 val value = SimpleInventory(size)
 
                 for (i in 0 until value.size()) {
-                    val item = deserialize(tag.getCompound(i.toString()))
+                    val item = NBTSerialization.deserialize(tag.getCompound(i.toString()))
                     value.setStack(i, item as ItemStack)
                 }
 

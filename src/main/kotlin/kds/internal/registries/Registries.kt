@@ -1,9 +1,12 @@
 package kds.internal.registries
 
 import com.mojang.serialization.Codec
+import com.mojang.serialization.Lifecycle
 import kds.api.registries.IRegistries
 import kds.api.registries.IRegistry
+import kds.api.util.id
 import net.minecraft.block.Block
+import net.minecraft.block.Material
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.entity.EntityType
@@ -33,6 +36,8 @@ import net.minecraft.structure.rule.PosRuleTestType
 import net.minecraft.structure.rule.RuleTestType
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
+import net.minecraft.util.registry.RegistryKey
+import net.minecraft.util.registry.SimpleRegistry
 import net.minecraft.village.VillagerProfession
 import net.minecraft.village.VillagerType
 import net.minecraft.world.biome.Biome
@@ -53,16 +58,16 @@ import net.minecraft.world.gen.trunk.TrunkPlacerType
 import net.minecraft.world.poi.PointOfInterestType
 
 internal object Registries : IRegistries {
-    override val soundEvent: IRegistry<SoundEvent> = 
+    override val soundEvent: IRegistry<SoundEvent> =
         RegistryWrapper(Registry.SOUND_EVENT)
 
-    override val fluid: IRegistry<Fluid> = 
+    override val fluid: IRegistry<Fluid> =
         RegistryWrapper(Registry.FLUID)
 
-    override val statusEffect: IRegistry<StatusEffect> = 
+    override val statusEffect: IRegistry<StatusEffect> =
         RegistryWrapper(Registry.STATUS_EFFECT)
 
-    override val block: IRegistry<Block> = 
+    override val block: IRegistry<Block> =
         RegistryWrapper(Registry.BLOCK)
 
     override val enchantment: IRegistry<Enchantment> =
@@ -71,10 +76,10 @@ internal object Registries : IRegistries {
     override val entityType: IRegistry<EntityType<*>> =
         RegistryWrapper(Registry.ENTITY_TYPE)
 
-    override val item: IRegistry<Item> = 
+    override val item: IRegistry<Item> =
         RegistryWrapper(Registry.ITEM)
 
-    override val potion: IRegistry<Potion> = 
+    override val potion: IRegistry<Potion> =
         RegistryWrapper(Registry.POTION)
 
     override val carver: IRegistry<Carver<*>> =
@@ -89,7 +94,7 @@ internal object Registries : IRegistries {
     override val decorator: IRegistry<Decorator<*>> =
         RegistryWrapper(Registry.DECORATOR)
 
-    override val biome: IRegistry<Biome> = 
+    override val biome: IRegistry<Biome> =
         RegistryWrapper(Registry.BIOME)
 
     override val blockStateProviderType: IRegistry<BlockStateProviderType<*>> =
@@ -193,6 +198,63 @@ internal object Registries : IRegistries {
 
     override val lootConditionType: IRegistry<LootConditionType> =
         RegistryWrapper(Registry.LOOT_CONDITION_TYPE)
+
+    val materialRegistryKey: RegistryKey<Registry<Material>> =
+        RegistryKey.ofRegistry<Material>(Identifier("kds", "material"))
+
+    val materialRegistry: SimpleRegistry<Material> =
+        SimpleRegistry<Material>(materialRegistryKey, Lifecycle.experimental())
+
+    override val material: IRegistry<Material> =
+        RegistryWrapper(materialRegistry)
+
+    init {
+        Registry.register(materialRegistry, id("minecraft", "air"), Material.AIR)
+        Registry.register(materialRegistry, id("minecraft", "structure_void"), Material.STRUCTURE_VOID)
+        Registry.register(materialRegistry, id("minecraft", "portal"), Material.PORTAL)
+        Registry.register(materialRegistry, id("minecraft", "carpet"), Material.CARPET)
+        Registry.register(materialRegistry, id("minecraft", "plant"), Material.PLANT)
+        Registry.register(materialRegistry, id("minecraft", "underwater_plant"), Material.UNDERWATER_PLANT)
+        Registry.register(materialRegistry, id("minecraft", "replaceable_plant"), Material.REPLACEABLE_PLANT)
+        Registry.register(
+            materialRegistry, id("minecraft", "replaceable_underwater_plant"), Material.REPLACEABLE_UNDERWATER_PLANT
+        )
+        Registry.register(materialRegistry, id("minecraft", "water"), Material.WATER)
+        Registry.register(materialRegistry, id("minecraft", "bubble_column"), Material.BUBBLE_COLUMN)
+        Registry.register(materialRegistry, id("minecraft", "lava"), Material.LAVA)
+        Registry.register(materialRegistry, id("minecraft", "snow_layer"), Material.SNOW_LAYER)
+        Registry.register(materialRegistry, id("minecraft", "fire"), Material.FIRE)
+        Registry.register(materialRegistry, id("minecraft", "supported"), Material.SUPPORTED)
+        Registry.register(materialRegistry, id("minecraft", "cobweb"), Material.COBWEB)
+        Registry.register(materialRegistry, id("minecraft", "redstone_lamp"), Material.REDSTONE_LAMP)
+        Registry.register(materialRegistry, id("minecraft", "organic_product"), Material.ORGANIC_PRODUCT)
+        Registry.register(materialRegistry, id("minecraft", "soil"), Material.SOIL)
+        Registry.register(materialRegistry, id("minecraft", "solid_organic"), Material.SOLID_ORGANIC)
+        Registry.register(materialRegistry, id("minecraft", "dense_ice"), Material.DENSE_ICE)
+        Registry.register(materialRegistry, id("minecraft", "aggregate"), Material.AGGREGATE)
+        Registry.register(materialRegistry, id("minecraft", "sponge"), Material.SPONGE)
+        Registry.register(materialRegistry, id("minecraft", "shulker_box"), Material.SHULKER_BOX)
+        Registry.register(materialRegistry, id("minecraft", "wood"), Material.WOOD)
+        Registry.register(materialRegistry, id("minecraft", "nether_wood"), Material.NETHER_WOOD)
+        Registry.register(materialRegistry, id("minecraft", "bamboo_sapling"), Material.BAMBOO_SAPLING)
+        Registry.register(materialRegistry, id("minecraft", "bamboo"), Material.BAMBOO)
+        Registry.register(materialRegistry, id("minecraft", "wool"), Material.WOOL)
+        Registry.register(materialRegistry, id("minecraft", "tnt"), Material.TNT)
+        Registry.register(materialRegistry, id("minecraft", "leaves"), Material.LEAVES)
+        Registry.register(materialRegistry, id("minecraft", "glass"), Material.GLASS)
+        Registry.register(materialRegistry, id("minecraft", "ice"), Material.ICE)
+        Registry.register(materialRegistry, id("minecraft", "cactus"), Material.CACTUS)
+        Registry.register(materialRegistry, id("minecraft", "stone"), Material.STONE)
+        Registry.register(materialRegistry, id("minecraft", "metal"), Material.METAL)
+        Registry.register(materialRegistry, id("minecraft", "snow_block"), Material.SNOW_BLOCK)
+        Registry.register(materialRegistry, id("minecraft", "repair_station"), Material.REPAIR_STATION)
+        Registry.register(materialRegistry, id("minecraft", "barrier"), Material.BARRIER)
+        Registry.register(materialRegistry, id("minecraft", "piston"), Material.PISTON)
+        Registry.register(materialRegistry, id("minecraft", "unused_plant"), Material.UNUSED_PLANT)
+        Registry.register(materialRegistry, id("minecraft", "gourd"), Material.GOURD)
+        Registry.register(materialRegistry, id("minecraft", "egg"), Material.EGG)
+        Registry.register(materialRegistry, id("minecraft", "cake"), Material.CAKE)
+    }
 }
 
 internal class RegistryWrapper<T>(private val reg: Registry<T>) : IRegistry<T> {

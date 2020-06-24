@@ -78,7 +78,6 @@ object ModelManager {
         val east = idOf(id, blockCube.east)
         val south = idOf(id, blockCube.south)
         val west = idOf(id, blockCube.west)
-        println("$id, ${blockCube.west}, $west")
 
         val jsonModel = JsonModel()
         jsonModel.parent = "minecraft:block/cube"

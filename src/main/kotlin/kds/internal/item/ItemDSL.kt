@@ -5,6 +5,7 @@ import kds.api.item.ItemBuilder
 import kds.internal.ModReference
 import kds.internal.client.ModelManager
 import kds.internal.client.TranslationManager
+import kds.internal.registries.InstanceManager
 import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
 import net.minecraft.util.Identifier
@@ -23,7 +24,9 @@ class ItemDSL(private val ref: ModReference) : IItemDSL {
         val id = Identifier(ref.modid, builder.name)
 
         if (!Registry.ITEM.ids.contains(id)) {
-            val item = KDSItem(Item.Settings().group(ItemGroup.MISC))
+            val settings = Item.Settings().group(ItemGroup.MISC)
+            val item = InstanceManager.newKDSItem(id, builder, settings)
+
             Registry.register(Registry.ITEM, id, item)
             ref.logger().info("Registering item ${builder.name}")
         }

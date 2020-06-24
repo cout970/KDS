@@ -6,11 +6,11 @@ import kds.api.block.IBlockDSL
 import kds.api.item.ItemBuilder
 import kds.api.model.BlockstateVariantBuilder
 import kds.internal.ModReference
-import kds.internal.block.blockentity.KDSBlockEntity
-import kds.internal.block.blockentity.KDSTickableBlockEntity
 import kds.internal.client.ModelManager
 import kds.internal.client.TranslationManager
 import kds.internal.item.KDSBlockItem
+import kds.internal.registries.InstanceManager
+import kds.internal.registries.Registries
 import net.minecraft.block.AbstractBlock
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
@@ -40,19 +40,17 @@ class BlockDSL(private val ref: ModReference) : IBlockDSL {
         val id = Identifier(ref.modid, builder.name)
 
         if (!Registry.BLOCK.ids.contains(id)) {
-            val settings = AbstractBlock.Settings.of(Material.STONE)
+            val material = Registries.materialRegistry[builder.material!!] ?: Material.STONE
+            val settings = AbstractBlock.Settings.of(material)
 
-            KDSBlock._constructor_config_ = builder
-            val block = if (builder.blockEntityConfig == null)
-                KDSBlock(builder, settings)
-            else
-                KDSBlockWithEntity(builder, settings)
+            val block = InstanceManager.newKDSBlock(id, builder, settings, builder.blockEntityConfig != null)
 
             Registry.register(Registry.BLOCK, id, block)
             ref.logger().info("Registering block ${builder.name}")
         }
 
         val block = Registry.BLOCK[id] as KDSBlock
+        block.config = builder
 
         builder.blockStateConfig?.let { config ->
 
@@ -84,7 +82,7 @@ class BlockDSL(private val ref: ModReference) : IBlockDSL {
         val tickable = config.modules.any { it.value.onTick != null }
 
         val type = BlockEntityType.Builder.create(
-            Supplier { if (tickable) KDSTickableBlockEntity(config) else KDSBlockEntity(config) }, block
+            Supplier { InstanceManager.newKDSBlockEntity(typeId, config, tickable) }, block
         ).build(null)
 
         Registry.register(Registry.BLOCK_ENTITY_TYPE, typeId, type)
@@ -117,7 +115,9 @@ class BlockDSL(private val ref: ModReference) : IBlockDSL {
         val id = Identifier(ref.modid, builder.name ?: block.config.name)
 
         if (!Registry.ITEM.ids.contains(id)) {
-            val item = KDSBlockItem(block, Item.Settings().group(ItemGroup.MISC))
+            val settings = Item.Settings().group(ItemGroup.MISC)
+
+            val item = InstanceManager.newKDSBlockItem(id, block, builder, settings)
             Registry.register(Registry.ITEM, id, item)
         }
 

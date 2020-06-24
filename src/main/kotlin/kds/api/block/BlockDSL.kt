@@ -29,9 +29,33 @@ class BlockBuilder {
      */
     var blockItem: ItemBuilder? = null
 
+    /**
+     * Use the blockEntity builder function instead
+     */
     var blockEntityConfig: BlockEntityBuilder? = null
 
+    /**
+     * Use the blockState builder function instead
+     */
     var blockStateConfig: BlockStateBuilder? = null
+
+    // Events
+    
+    var onUse: (BlockOnUse.() -> Unit)? = null
+    var onBreak: (BlockOnBreak.() -> Unit)? = null
+    var onBroken: (BlockOnBroken.() -> Unit)? = null
+    var onDestroyedByExplosion: (BlockOnDestroyedByExplosion.() -> Unit)? = null
+    var onEntityLand: (BlockOnEntityLand.() -> Unit)? = null
+    var onLandedUpon: (BlockOnLandedUpon.() -> Unit)? = null
+    var onPlaced: (BlockOnPlaced.() -> Unit)? = null
+    var onSteppedOn: (BlockOnSteppedOn.() -> Unit)? = null
+    var onBlockAdded: (BlockOnBlockAdded.() -> Unit)? = null
+    var onEntityCollision: (BlockOnEntityCollision.() -> Unit)? = null
+    var onProjectileHit: (BlockOnProjectileHit.() -> Unit)? = null
+    var onStacksDropped: (BlockOnStacksDropped.() -> Unit)? = null
+    var onStateReplaced: (BlockOnStateReplaced.() -> Unit)? = null
+    var onSyncedBlockEvent: (BlockOnSyncedBlockEvent.() -> Unit)? = null
+    var placementState: (BlockPlacementState.() -> Unit)? = null
 
     fun item(func: ItemBuilder.() -> Unit) {
         val builder = blockItem ?: ItemBuilder()
