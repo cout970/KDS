@@ -1,7 +1,7 @@
 package kds.api
 
-import kds.api.block.IBlockDSL
-import kds.api.item.IItemDSL
+import kds.api.block.BlockDSL
+import kds.api.item.ItemDSL
 import net.minecraft.util.Identifier
 import org.apache.logging.log4j.Logger
 
@@ -28,12 +28,12 @@ interface IModReference {
     /**
      * Definition of the blocks of the mod, can be called multiple times
      */
-    fun blocks(dsl: IBlockDSL.() -> Unit)
+    fun blocks(dsl: BlockDSL.() -> Unit)
 
     /**
      * Definition of the blocks of the mod, can be called multiple times
      */
-    fun items(dsl: IItemDSL.() -> Unit)
+    fun items(dsl: ItemDSL.() -> Unit)
 
     /**
      * Creates an id for a path inside this mod

@@ -2,10 +2,11 @@ package kds.api.block
 
 import kds.api.KDS
 import kds.api.block.blockentity.ModuleBuilder
+import kds.api.block.blockentity.ModuleState
 import kds.api.item.ItemBuilder
 import net.minecraft.util.Identifier
 
-interface IBlockDSL {
+interface BlockDSL {
     /**
      * Defines a single block to be added into the game
      */
@@ -40,7 +41,7 @@ class BlockBuilder {
     var blockStateConfig: BlockStateBuilder? = null
 
     // Events
-    
+
     var onUse: (BlockOnUse.() -> Unit)? = null
     var onBreak: (BlockOnBreak.() -> Unit)? = null
     var onBroken: (BlockOnBroken.() -> Unit)? = null
@@ -82,12 +83,12 @@ class BlockBuilder {
 @KDS
 class BlockEntityBuilder {
 
-    val modules = mutableMapOf<Identifier, ModuleBuilder>()
+    val modules = mutableMapOf<Identifier, ModuleBuilder<*>>()
     var renderDistance: Double = 64.0
     var type: Identifier? = null
 
-    fun module(func: ModuleBuilder.() -> Unit) {
-        val dsl = ModuleBuilder().apply(func)
+    fun <T : ModuleState> module(func: ModuleBuilder<T>.() -> Unit) {
+        val dsl = ModuleBuilder<T>().apply(func)
         if (dsl.id == null) {
             error("Module defined without id")
         }

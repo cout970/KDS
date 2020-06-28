@@ -1,8 +1,10 @@
 package kds.internal.block.blockentity
 
 import kds.api.block.BlockEntityBuilder
-import kds.api.block.blockentity.Module
+import kds.api.block.blockentity.DefaultModuleState
+import kds.api.block.blockentity.ModuleBuilder
 import kds.api.block.blockentity.ModuleCtx
+import kds.api.block.blockentity.ModuleState
 import kds.api.util.NBTSerialization
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
@@ -19,32 +21,28 @@ open class KDSBlockEntity(val config: BlockEntityBuilder) : BlockEntity(type(con
      * Be careful extending this class, moduleManager may not be fully configured in the subclass constructor
      */
     @Suppress("LeakingThis")
-    val moduleManager = ModuleManager(this)
+    val moduleManager = KDSModuleManager(this)
 
     val ctx: ModuleCtx
         get() = ModuleCtx(world!!, pos, moduleManager)
 
-    fun init() {
-        if (!hasWorld()) return
-
+    init {
         config.modules.forEach { (id, dsl) ->
-            val module = Module(id)
-            dsl.onInit?.invoke(ctx, module)
+            val module = dsl.onCreate?.invoke() ?: DefaultModuleState
             moduleManager.modules[id] = module
         }
     }
 
-    fun reset() {
-        config.modules.forEach { (id, dsl) ->
-            val module = moduleManager.modules[id] ?: return@forEach
-            dsl.onReset?.invoke(ctx, module)
+    fun init() {
+        if (!hasWorld()) return
+        modules { _, builder, state ->
+            builder.onInit?.let { func -> func(ctx, state) }
         }
     }
 
     override fun setLocation(world: World?, pos: BlockPos?) {
-        val initialized = hasWorld()
         super.setLocation(world, pos)
-        if (!initialized) init() else reset()
+        init()
     }
 
     override fun getSquaredRenderDistance(): Double {
@@ -52,27 +50,28 @@ open class KDSBlockEntity(val config: BlockEntityBuilder) : BlockEntity(type(con
     }
 
     override fun toTag(tag: CompoundTag): CompoundTag {
-        modules { id, module ->
-            if (module.persistentState != null) {
-                val value = NBTSerialization.serialize(module.persistentState!!)
-                tag.put(id.toString(), value)
-            }
+        modules { id, _, state ->
+            val persistentState = state.persistentState ?: return@modules
+            val value = NBTSerialization.serialize(persistentState)
+            tag.put(id.toString(), value)
         }
         return super.toTag(tag)
     }
 
-    override fun fromTag(state: BlockState, tag: CompoundTag) {
-        super.fromTag(state, tag)
-        modules { id, module ->
+    override fun fromTag(blockstate: BlockState, tag: CompoundTag) {
+        super.fromTag(blockstate, tag)
+        modules { id, _, state ->
             if (tag.contains(id.toString())) {
-                module.persistentState = NBTSerialization.deserialize(tag.getCompound(id.toString()))
+                state.persistentState = NBTSerialization.deserialize(tag.getCompound(id.toString()))
             }
         }
     }
 
-    inline fun modules(func: (id: Identifier, module: Module) -> Unit) {
-        moduleManager.modules.forEach { (id, module) ->
-            func(id, module)
+    inline fun modules(func: (id: Identifier, builder: ModuleBuilder<ModuleState>, state: ModuleState) -> Unit) {
+        config.modules.forEach { (id, dsl) ->
+            val state = moduleManager.modules[id] ?: return@forEach
+            @Suppress("UNCHECKED_CAST")
+            func(id, dsl as ModuleBuilder<ModuleState>, state)
         }
     }
 }
@@ -80,8 +79,8 @@ open class KDSBlockEntity(val config: BlockEntityBuilder) : BlockEntity(type(con
 open class KDSTickableBlockEntity(config: BlockEntityBuilder) : KDSBlockEntity(config), Tickable {
 
     override fun tick() {
-        config.modules.forEach { (id, dsl) ->
-            dsl.onTick?.invoke(ctx, moduleManager.modules[id]!!)
+        modules { _, builder, state ->
+            builder.onTick?.let { func -> func(ctx, state) }
         }
     }
 }

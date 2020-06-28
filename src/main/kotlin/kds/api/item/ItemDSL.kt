@@ -4,7 +4,7 @@ import kds.api.KDS
 import kds.api.model.JsonModel
 import net.minecraft.util.Identifier
 
-interface IItemDSL {
+interface ItemDSL {
     /**
      * Defines a single block to be added into the game
      */

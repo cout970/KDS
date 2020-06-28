@@ -1,14 +1,14 @@
-package scripts.blocks
+package example_mod.scripts.blocks
 
-import kds.api.API
 import kds.api.IModReference
+import kds.api.Scripting
 import kds.api.item.BlockCubeModel
 import kds.api.model.Transformation
 import kds.api.module.inventory
 import kds.api.util.id
 import kds.api.util.withProperty
 
-val ref: IModReference = API.get("reference")
+val ref: IModReference = Scripting.get("reference")
 
 ref.blocks {
     block {
@@ -60,7 +60,7 @@ ref.blocks {
         }
 
         placementState = {
-            result = result!!.withProperty("facing", ctx.playerLookDirection.opposite)
+            result = block.defaultState.withProperty("facing", ctx.playerFacing.opposite)
         }
     }
 }

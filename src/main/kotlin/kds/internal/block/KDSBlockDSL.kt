@@ -1,8 +1,8 @@
 package kds.internal.block
 
 import kds.api.block.BlockBuilder
+import kds.api.block.BlockDSL
 import kds.api.block.BlockEntityBuilder
-import kds.api.block.IBlockDSL
 import kds.api.item.ItemBuilder
 import kds.api.model.BlockstateVariantBuilder
 import kds.internal.ModReference
@@ -27,7 +27,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import java.util.function.Supplier
 
-class BlockDSL(private val ref: ModReference) : IBlockDSL {
+class KDSBlockDSL(private val ref: ModReference) : BlockDSL {
 
     override fun block(definition: BlockBuilder.() -> Unit): Identifier {
         val builder = BlockBuilder()

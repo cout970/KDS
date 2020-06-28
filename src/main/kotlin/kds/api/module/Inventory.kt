@@ -1,23 +1,21 @@
 package kds.api.module
 
 import kds.api.block.BlockEntityBuilder
+import kds.api.block.blockentity.ModuleState
 import net.minecraft.inventory.SimpleInventory
-import net.minecraft.item.ItemStack
 import net.minecraft.util.Identifier
 
-data class InventoryState(val slots: List<ItemStack>)
+class InventoryModuleDSL {
+    var slots: Int = 1
+}
+
+data class InventoryState(val inventory: SimpleInventory) : ModuleState
 
 fun BlockEntityBuilder.inventory(dsl: InventoryModuleDSL.() -> Unit) {
     val config = InventoryModuleDSL().apply(dsl)
 
-    module {
+    module<InventoryState> {
         id = Identifier("kds", "inventory")
-        onInit = { mod ->
-            mod.persistentState = SimpleInventory(config.slots)
-        }
+        onCreate = { InventoryState(SimpleInventory(config.slots)) }
     }
-}
-
-class InventoryModuleDSL {
-    var slots: Int = 1
 }

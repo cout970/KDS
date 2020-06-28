@@ -1,13 +1,11 @@
-import kds.api.API
+import example_mod.States
+import example_mod.customModule
 import kds.api.IModReference
-import kds.api.block.BlockEntityBuilder
+import kds.api.Scripting
 import kds.api.item.BlockCubeModel
-import kds.api.util.findProperty
 import kds.api.util.id
-import net.minecraft.util.StringIdentifiable
-import java.io.Serializable
 
-val ref: IModReference = API.get("reference")
+val ref: IModReference = Scripting.get("reference")
 
 ref.blocks {
     block {
@@ -86,30 +84,4 @@ ref.blocks {
     }
 }
 
-fun BlockEntityBuilder.customModule() {
-    data class Counter(var count: Int = 0) : Serializable
-
-    module {
-        id = ref.id("custom_module")
-        onInit = { mod ->
-            mod.persistentState = Counter()
-        }
-        onTick = { module ->
-            val enumProperty = moduleManager.blockstate.findProperty<States>("option")!!
-            val counter = module.persistentState<Counter>()
-
-            if (counter.count % 20 == 0) {
-                world.setBlockState(pos, moduleManager.blockstate.cycle(enumProperty))
-            }
-            counter.count++
-        }
-    }
-}
-
-enum class States : StringIdentifiable {
-    A, B, C;
-
-    override fun asString(): String = name.toLowerCase()
-}
-
-API.include("scripts/blocks/Furnace", "reference" to ref)
+Scripting.include("example_mod/scripts/blocks/Furnace", "reference" to ref)

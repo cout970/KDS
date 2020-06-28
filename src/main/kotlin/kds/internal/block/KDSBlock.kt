@@ -1,6 +1,7 @@
 package kds.internal.block
 
 import kds.api.block.*
+import kds.api.module.InventoryState
 import kds.api.util.id
 import kds.internal.block.blockentity.KDSBlockEntity
 import kds.internal.registries.InstanceManager
@@ -196,7 +197,7 @@ open class KDSBlock(settings: Settings) : Block(settings), InventoryProvider {
     override fun getInventory(state: BlockState, world: WorldAccess, pos: BlockPos): SidedInventory? {
         val blockEntity = (world.getBlockEntity(pos) as? KDSBlockEntity) ?: return null
         val module = blockEntity.moduleManager.modules[id("kds", "inventory")] ?: return null
-        val inv = module.persistentState<SimpleInventory>()
+        val inv = (module as InventoryState).inventory
 
         class SInventory(val inv: SimpleInventory) : Inventory by inv, SidedInventory {
             override fun canExtract(slot: Int, stack: ItemStack?, dir: Direction): Boolean = true

@@ -1,14 +1,14 @@
-package scripts
+package example_mod.scripts
 
-import kds.api.API
 import kds.api.IModReference
+import kds.api.Scripting
 import kds.api.registries.toBlock
 import kds.api.registries.toItem
 import net.minecraft.block.Block
 import net.minecraft.item.Item
 
 object Storage {
-    val ref: IModReference = API.get("reference")
+    val ref: IModReference = Scripting.get("reference")
 
     val MAGIC_DIRT = block("magic_dirt")
     val MAGIC_SAND = block("magic_sand")

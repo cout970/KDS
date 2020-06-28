@@ -1,15 +1,16 @@
 package kds.api.block.blockentity
 
 import kds.api.KDS
+import kds.api.util.NBTSerialization
 import net.minecraft.block.BlockState
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-data class ModuleCtx(val world: World, val pos: BlockPos, val moduleManager: IModuleManager)
+data class ModuleCtx(val world: World, val pos: BlockPos, val moduleManager: ModuleManager)
 
-interface IModuleManager {
-    val modules: Map<Identifier, Module>
+interface ModuleManager {
+    val modules: Map<Identifier, ModuleState>
     val blockstate: BlockState
     var removed: Boolean
 
@@ -17,20 +18,32 @@ interface IModuleManager {
     fun markDirty()
 }
 
-class Module(val id: Identifier) {
-    var persistentState: Any? = null
-    var syncState: Any? = null
-    var temporaryState: Any? = null
+interface ModuleState {
+    /**
+     * Value automatically serialized and deserialized on save/load
+     *
+     * You can write a custom serializer [NBTSerialization]
+     */
+    var persistentState: Any?
+        get() = null
+        set(_) {}
 
-    fun <T> persistentState(): T = persistentState as T
-    fun <T> temporaryState(): T = temporaryState as T
-    fun <T> syncState(): T = syncState as T
+    /**
+     * Value automatically serialized and deserialized to be send from server to client
+     *
+     * You must call ModuleManager.sendUpdateToNearPlayers()
+     */
+    var syncState: Any?
+        get() = null
+        set(_) {}
 }
 
+object DefaultModuleState : ModuleState
+
 @KDS
-open class ModuleBuilder {
+open class ModuleBuilder<State : ModuleState> {
     var id: Identifier? = null
-    var onTick: (ModuleCtx.(Module) -> Unit)? = null
-    var onInit: (ModuleCtx.(Module) -> Unit)? = null
-    var onReset: (ModuleCtx.(Module) -> Unit)? = null
+    var onCreate: (() -> State)? = null
+    var onInit: (ModuleCtx.(State) -> Unit)? = null
+    var onTick: (ModuleCtx.(State) -> Unit)? = null
 }

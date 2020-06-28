@@ -1,8 +1,8 @@
-import kds.api.API
 import kds.api.IModReference
+import kds.api.Scripting
 import kds.api.item.ItemSpriteModel
 
-val ref: IModReference = API.get("reference")
+val ref: IModReference = Scripting.get("reference")
 
 ref.items {
     item {

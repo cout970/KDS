@@ -1,16 +1,16 @@
 package kds.internal.block.blockentity
 
-import kds.api.block.blockentity.IModuleManager
-import kds.api.block.blockentity.Module
+import kds.api.block.blockentity.ModuleManager
+import kds.api.block.blockentity.ModuleState
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Identifier
 
-class ModuleManager(val blockEntity: BlockEntity) :
-    IModuleManager {
+class KDSModuleManager(val blockEntity: BlockEntity) :
+    ModuleManager {
     override val modules =
-        mutableMapOf<Identifier, Module>()
+        mutableMapOf<Identifier, ModuleState>()
 
     override val blockstate: BlockState
         get() = blockEntity.cachedState
@@ -26,7 +26,7 @@ class ModuleManager(val blockEntity: BlockEntity) :
         val pos = blockEntity.pos ?: return
         if (world.isClient) return
 
-        blockEntity.toUpdatePacket()?.let { packet->
+        blockEntity.toUpdatePacket()?.let { packet ->
             world.players
                 .map { it as ServerPlayerEntity }
                 .filter { it.squaredDistanceTo(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble()) < (64 * 64) }

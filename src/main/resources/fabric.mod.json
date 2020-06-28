@@ -2,7 +2,6 @@
   "schemaVersion": 1,
   "id": "kds",
   "version": "${version}",
-
   "name": "KDS",
   "description": "This is proof of concept",
   "authors": [
@@ -12,14 +11,13 @@
     "homepage": "http://cout970.com/",
     "sources": "https://github.com/cout970/KDS"
   },
-
   "license": "MIT",
   "icon": "assets/kds/icon.png",
-
   "environment": "*",
   "entrypoints": {
     "main": [
-      "kds.KDSInit"
+      "kds.KDSInit",
+      "example_mod.ExampleMod"
     ]
   },
   "mixins": [

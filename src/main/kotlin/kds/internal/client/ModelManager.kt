@@ -19,16 +19,10 @@ object ModelManager {
     private val customTexturePaths = mutableMapOf<Identifier, Identifier>()
 
     fun getCustomModel(id: Identifier): JsonUnbakedModel? {
-//        if (id.namespace == "example_mod") {
-//            println("here")
-//        }
         return customModels[id]
     }
 
     fun getBlockstateConfig(id: Identifier): ((ModelIdentifier, BlockState) -> UnbakedModel?)? {
-//        if (id.namespace == "example_mod") {
-//            println("here")
-//        }
         return customBlockstateModels[id]
     }
 

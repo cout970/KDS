@@ -1,10 +1,10 @@
 package kds.internal
 
 import kds.api.IModReference
-import kds.api.block.IBlockDSL
-import kds.api.item.IItemDSL
-import kds.internal.block.BlockDSL
-import kds.internal.item.ItemDSL
+import kds.api.block.BlockDSL
+import kds.api.item.ItemDSL
+import kds.internal.block.KDSBlockDSL
+import kds.internal.item.KDSItemDSL
 import net.minecraft.util.Identifier
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -17,18 +17,18 @@ class ModReference(
 
     private val logger = LogManager.getLogger(modid)
 
-    override fun blocks(dsl: IBlockDSL.() -> Unit) {
+    override fun blocks(dsl: BlockDSL.() -> Unit) {
         try {
-            BlockDSL(this).apply(dsl)
+            KDSBlockDSL(this).apply(dsl)
         } catch (e: Exception) {
             logger.error("Exception in block definition", e)
             throw e
         }
     }
 
-    override fun items(dsl: IItemDSL.() -> Unit) {
+    override fun items(dsl: ItemDSL.() -> Unit) {
         try {
-            ItemDSL(this).apply(dsl)
+            KDSItemDSL(this).apply(dsl)
         } catch (e: Exception) {
             logger.error("Exception in item definition", e)
             throw e
