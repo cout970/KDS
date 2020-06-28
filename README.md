@@ -1,6 +1,10 @@
 # Kotlin Dynamic Scripting (KDS)
 This is an experiment to explore the possibility mods that are fully hotswappable.
 
+## What does it look like?
+
+Check the example mod [here](src/main/kotlin/example_mod/scripts)
+
 ## Why Kotlin
 This project would be impractical without Kotlin.
 Kotlin has a bunch of features that Java lacks that makes it perfect for this.
@@ -123,3 +127,14 @@ If after reading this section you are interested in learning Kotlin and all of i
 we recommend using [Kotlin Koans](https://play.kotlinlang.org/byExample/01_introduction/01_Hello%20world), 
 It's a list of interactive tutorials that walks you through the language, teaches you the basics and 
 gives you challenges to show that you are really learning.
+
+## Status
+Currently, basic features work but there are a lot of limitations: no inline, you can't expose classless functions of 
+a script, you need to call Scripting.include() to use content in another script, include() is async (executed after the 
+current scrip has finished), no debugging in script, line numbers are erased at runtime, etc.
+Also, there are several errors in the script engine, sometimes when a script is re-evaluated it generates a compiler 
+frontend error.
+
+The Kotlin compiler is under a rewrite to increase performance, allow compiler plugins and allow better customization in 
+the script engine. 
+This is scheduled for Kotlin 1.4 but may take a while more to get stable enough for this use case. 
